@@ -1,8 +1,6 @@
 # LFF
 
-## Latent Failure Feedback (LFF) Experiment
-
-### Process
+## Process
 
 1. **Initial Inference**  
    Performed inference on the GSM8K *train* dataset using the `run_GSM8K_zeroshot_CoT.py` script and saved the outputs.
@@ -16,10 +14,10 @@
    - If a similar failure case was found, its corresponding revised prompt was injected before inference.  
    - If no match was found, the original question was used as-is.
 
-### Result
+## Result
 
 - **Accuracy** **73.24% → 72.93%**
 
-### Notes
+## Notes
 
 - Indices of test samples modified with revised prompts are recorded in `test_revision_list.txt`.
