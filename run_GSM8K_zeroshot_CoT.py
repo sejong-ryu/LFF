@@ -6,7 +6,7 @@ import random
 import numpy as np 
 import os 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
@@ -52,7 +52,7 @@ if __name__=='__main__':
     set_seed(42)
     flag = 3
 
-    sample_portion = 1.0  # Set the portion of the dataset (use line 89, 90 and remove line 91)
+    sample_portion = 1.0  # Set the portion of the dataset (use line 90, 91 and remove line 92)
     dataset = 'GSM8K'
     model_name = "Llama-3-8B-Instruct"
     model_path = "meta-llama/Meta-Llama-3-8B-Instruct"
@@ -105,3 +105,6 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of Zero-shot CoT Prompt: {count_1/length*100}.")
+        path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train.txt'
+        #path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test.txt'
+        save_result_to_txt(model_name, dataset, "Zero-shot_CoT", count_1/length*100, path_txt)

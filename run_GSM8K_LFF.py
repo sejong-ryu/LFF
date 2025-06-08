@@ -6,7 +6,7 @@ import random
 import numpy as np 
 import os 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt
 from util.memory_utils import retrieve_revision_advice
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -60,7 +60,7 @@ if __name__=='__main__':
     set_seed(42)
     flag = 3
 
-    sample_portion = 1.0  # Set the portion of the dataset (use line 102, 103 and remove line 104)
+    sample_portion = 1.0  # Set the portion of the dataset (use line 104, 105 and remove line 106)
     fail_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train2_seed42_portion1.0.pt"
     revision_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train2_seed42_portion1.0.jsonl"
     dataset = 'GSM8K'
@@ -119,5 +119,8 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
+        #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_train.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_test.txt'
+        save_result_to_txt(model_name, dataset, "LFF", count_1/length*100, path_txt)
         
     print(f"Revision List: {len(revision_list)}, {revision_list}")
