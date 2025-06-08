@@ -61,8 +61,8 @@ if __name__=='__main__':
     flag = 3
 
     sample_portion = 1.0  # Set the portion of the dataset (use line 104, 105 and remove line 106)
-    fail_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train2_seed42_portion1.0.pt"
-    revision_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train2_seed42_portion1.0.jsonl"
+    fail_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_seed42_portion1.0.pt"
+    revision_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_seed42_portion1.0.jsonl"
     dataset = 'GSM8K'
     model_name = "Llama-3-8B-Instruct"
     model_path = "meta-llama/Meta-Llama-3-8B-Instruct"
