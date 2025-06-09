@@ -16,10 +16,7 @@ def set_seed(seed):
         
         
 def save_result_to_txt(model, dataset, method, accuracy, filename="result.txt"):
-    content = f"Model: {model}\n
-                Dataset: {dataset}
-                Method: {method}
-                Accuracy: {accuracy:.10f}"
+    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nAccuracy: {accuracy:.10f}"
     with open(filename, "w") as f:
         f.write(content)
         
