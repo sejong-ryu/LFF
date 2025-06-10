@@ -1,0 +1,4 @@
+Model: Llama-3-8B-Instruct
+Dataset: GSM8K
+Method: LFF
+Accuracy: 78.9234268385

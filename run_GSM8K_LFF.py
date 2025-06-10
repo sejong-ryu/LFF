@@ -25,7 +25,7 @@ def main(i, data, model, tokenizer=None, fail_memories=None, revision_memories=N
 
     question = data['question']
     
-    advice = retrieve_revision_advice(question, fail_memories, revision_memories, model, tokenizer, threshold=0.5)
+    advice = retrieve_revision_advice(question, fail_memories, revision_memories, model, tokenizer, threshold=0.3)
     if advice != "":
         revision_list.append(i+1)
     
@@ -36,7 +36,7 @@ def main(i, data, model, tokenizer=None, fail_memories=None, revision_memories=N
     QAs['Q'] = {'role': 'user', 'content': question}
     messages=[{'role': 'user', 'content': question}]
     
-    response_1 = chat_huggingface(messages, model, tokenizer)
+    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
     QAs['A'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
@@ -61,8 +61,8 @@ if __name__=='__main__':
     flag = 3
 
     sample_portion = 1.0  # Set the portion of the dataset (use line 104, 105 and remove line 106)
-    fail_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_seed42_portion1.0.pt"
-    revision_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_seed42_portion1.0.jsonl"
+    fail_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_512_seed42_portion1.0.pt"
+    revision_memory_path = "memory/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_512_seed42_portion1.0.jsonl"
     dataset = 'GSM8K'
     model_name = "Llama-3-8B-Instruct"
     model_path = "meta-llama/Meta-Llama-3-8B-Instruct"
@@ -91,8 +91,8 @@ if __name__=='__main__':
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_train.jsonl'
     path_input = f'{input_dir}/{dataset}_test.jsonl'
-    #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_test.jsonl'
+    #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train_512.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_test_512.jsonl'
 
     if flag==1 or flag==3:
         fail_memories = torch.load(fail_memory_path, map_location=device).to(torch.bfloat16).to(device)
@@ -120,7 +120,7 @@ if __name__=='__main__':
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_train.txt'
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_test.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_test_512.txt'
         save_result_to_txt(model_name, dataset, "LFF", count_1/length*100, path_txt)
         
     print(f"Revision List: {len(revision_list)}, {revision_list}")

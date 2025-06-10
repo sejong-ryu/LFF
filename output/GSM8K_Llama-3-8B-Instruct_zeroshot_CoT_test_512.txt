@@ -1,0 +1,4 @@
+Model: Llama-3-8B-Instruct
+Dataset: GSM8K
+Method: Zero-shot_CoT
+Accuracy: 81.4253222138

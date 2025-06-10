@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 
 openai.api_key = "XXX"
@@ -28,7 +28,7 @@ def main(i, data, model, tokenizer=None):
     QAs['Q'] = {'role': 'user', 'content': question}
     messages=[{'role': 'user', 'content': question}]
     
-    response_1 = chat_huggingface(messages, model, tokenizer)
+    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
     QAs['A'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
@@ -79,10 +79,10 @@ if __name__=='__main__':
     output_dir = 'output/'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    path_input = f'{input_dir}/{dataset}_train.jsonl'
-    #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train.jsonl'
-    #path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test.jsonl'
+    #path_input = f'{input_dir}/{dataset}_train.jsonl'
+    path_input = f'{input_dir}/{dataset}_test.jsonl'
+    #path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train_512.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test_512.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
@@ -105,6 +105,6 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of Zero-shot CoT Prompt: {count_1/length*100}.")
-        path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train.txt'
-        #path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test.txt'
+        #path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train_512.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test_512.txt'
         save_result_to_txt(model_name, dataset, "Zero-shot_CoT", count_1/length*100, path_txt)
