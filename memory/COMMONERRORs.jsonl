@@ -1,0 +1,18 @@
+{"type": "Arithmetic Miscalculation", "format": "3‑digit × 1‑digit multiplication carried incorrectly, adding an extra 60 to the product."}
+{"type": "Unit Conversion Error", "format": "After finding unit‑rate a per unit time, multiplied rather than divided by required amount, inverting proportional reasoning."}
+{"type": "Counting Error", "format": "Mis‑handled boundary conditions, giving one extra or missing iteration/value."}
+{"type": "Equation Or Variable Setup Error", "format": "Left variables unresolved or omitted given values, leading to undefined or arbitrary results."}
+{"type": "Ratio Or Percentage Or Fraction Error", "format": "A required group omitted when adding categories, producing an undercount."}
+{"type": "Omission Or Double-counting Error", "format": "Correctly computed ongoing quantities but neglected to include a necessary constant/fixed amount, so the final total was overstated or understated by that value."}
+{"type": "Problem Misinterpretation", "format": "Mis‑interpreted time spans or calendars when aggregating or scaling amounts."}
+{"type": "Sign Or Direction Error", "format": "A change in rate partway through an interval is ignored, so an entire sub‑interval is assigned the wrong rate."}
+{"type": "Sequence Or Order Error", "format": "Failed to update running totals correctly across steps, losing or duplicating amounts."}
+{"type": "Rounding Or Precision Error", "format": "Computed correct value but presented it incorrectly or corrupted the answer field."}
+{"type": "Miscellaneous Or Unclassified Miscalculation", "format": "Idiosyncratic mistake outside the patterns above, often due to data corruption or external refusal."}
+{"type": "Aggregation Or Classification Error", "format": "Computed averages improperly, ignoring weights or mixing totals before dividing. Applied interest or growth formulas incorrectly (simple vs compound, wrong periods)."}
+{"type": "Geometry Or Dimension Error", "format": "Applied greatest‑common‑factor tiling logic instead of area‑to‑square‑root logic required for forming a single square."}
+{"type": "Probability Or Combinatorics Error", "format": "Mis‑applied probability or combinatorial principles, double‑counting or missing cases."}
+{"type": "Semantics Misinterpretation Error", "format": "'n times more than X' taken as n·X instead of (n+1)·X, understating totals Mis‑posted a cost versus expense, or parked a cash‑flow figure in the wrong category, misstating the totals."}
+{"type": "Remainder Or Segment Miscalculation", "format": "Removed or left in a final segment one time too many when partitioning a length, leaving the unknown remainder too large or too small."}
+{"type": "Algebraic Manipulation Error", "format": "Mishandled algebraic rearrangements or equation solving, dropping terms or coefficients."}
+{"type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
