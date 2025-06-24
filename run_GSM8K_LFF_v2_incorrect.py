@@ -10,7 +10,7 @@ from util.utils import set_seed, read_data, save_result, get_answer_from_text, c
 from util.memory_utils import retrieve_revision_advice, retrieve_error_pattern
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModel
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 
 openai.api_key = "xxx"
@@ -19,9 +19,9 @@ HUGGINGFACE_TOKEN = "xxx"
 revision_list = []
 
 
-def main(i, data, model, tokenizer=None, retriever=None, fail_memories=None, revision_memories=None):
+def main(i, data, model, tokenizer=None, revision_memories=None):
     QAs = dict()
-    QAs['index'] = int(i)
+    QAs['index'] = int(data['index'])
 
     question = data['question']
     
@@ -29,36 +29,34 @@ def main(i, data, model, tokenizer=None, retriever=None, fail_memories=None, rev
     extractor = " Your final answer should be put between two ##, like ## 1 ## (if your final answer is 1), at the end of your response."
     question = question + " Explain your reasoning step-by-step." + extractor
     
-    QAs['Q'] = {'role': 'user', 'content': question}
+    QAs['Q1'] = {'role': 'user', 'content': question}
     messages = [{'role': 'user', 'content': question}]
     
-    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
     
-    QAs['A'] = {'role': 'assistant', 'content':response_1}
+    QAs['A1'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
     
     QAs['answer'] = answer
     QAs['pred_ans1'] = get_answer_from_text(response_1)
     
-    ### Extract embedding from question + zero-shot CoT prompt + extractor
-    max_sim, error_pattern = retrieve_error_pattern(question, response_1, fail_memories, revision_memories, retriever, threshold=0.0)
-    if error_pattern != "":
-        revision_list.append(i+1)
+    ### Apply error warning without retrieval
+    error_pattern = revision_memories
         
-        question = f" You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
+    question = f" You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
         
-        QAs['Q2'] = {'role': 'user', 'content': question}
-        messages.append({'role': 'user', 'content': question})
+    QAs['Q2'] = {'role': 'user', 'content': question}
+    messages.append({'role': 'user', 'content': question})
         
-        response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
+    response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
         
-        QAs['A2'] = {'role': 'assistant', 'content':response_2}
-        messages.append({'role': 'assistant', 'content':response_2})
+    QAs['A2'] = {'role': 'assistant', 'content':response_2}
+    messages.append({'role': 'assistant', 'content':response_2})
         
         
-        QAs['pred_ans2'] = get_answer_from_text(response_2)             
+    QAs['pred_ans2'] = get_answer_from_text(response_2)             
 
-    return max_sim, QAs 
+    return QAs 
 
 
 if __name__=='__main__':
@@ -75,12 +73,10 @@ if __name__=='__main__':
     flag = 3
 
     sample_portion = 1.0  # Set the portion of the dataset (use line 104, 105 and remove line 106)
-    fail_memory_path = "memory/COMMONERRORs.pt"
-    revision_memory_path = "memory/COMMONERRORs.jsonl"
+    revision_memory_path = "memory/ERRORs_seed42_portion0.02.jsonl"
     dataset = 'GSM8K'
     model_name = "Llama-3-8B-Instruct"
     model_path = "meta-llama/Meta-Llama-3-8B-Instruct"
-    retriever_path = "jinaai/jina-embeddings-v3"
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     
@@ -100,30 +96,18 @@ if __name__=='__main__':
         model.generation_config.top_p=None
         model.eval()
         model = model.to(device)
-        
-        ### Load the retriever 
-        retriever = AutoModel.from_pretrained(
-            retriever_path,
-            trust_remote_code=True,
-            token=HUGGINGFACE_TOKEN,
-            torch_dtype=torch.bfloat16,
-        )
-        retriever.eval()
-        retriever = retriever.to(device)
     
     input_dir = "dataset/"
     output_dir = 'output/'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_train.jsonl'
-    path_input = f'{input_dir}/{dataset}_test.jsonl'
+    #path_input = f'{input_dir}/{dataset}_test.jsonl'
+    path_input = f'failure/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_seed42_portion0.02.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train_512.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v3_test.jsonl'
-    path_output_sim = f'{output_dir}/{dataset}_{model_name}_LFF_v3_test_sim.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v2_re_incorrect_seed42_portion0.02.jsonl'
 
     if flag==1 or flag==3:
-        fail_memories = torch.load(fail_memory_path, map_location=device).to(torch.bfloat16).to(device)
-        print(f"fail memories: {fail_memories.shape}")
         revision_memories = read_data(revision_memory_path)
         print(f"finished load memoreis")
         data = read_data(path_input)
@@ -134,10 +118,8 @@ if __name__=='__main__':
              
         print(f"data size: {len(sample_indices)}, output: {path_output}, OpenAI's key: {openai.api_key}, HuggingFace's token: {HUGGINGFACE_TOKEN}")
         for i in tqdm(sample_indices): 
-            max_sim, messages = main(i, data[i], model, tokenizer, retriever, fail_memories, revision_memories)
-            sim_output = {'index': float(i), 'max_sim': max_sim.item()}
+            messages = main(i, data[i], model, tokenizer, revision_memories[i])
             save_result(messages, path_output)
-            save_result(sim_output, path_output_sim)
 
     if flag==2 or flag==3:
         data_est = read_data(path_output)
@@ -153,7 +135,7 @@ if __name__=='__main__':
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_train.txt'
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v3_test.txt'
-        save_result_to_txt(model_name, dataset, "LFF v3", count_1/length*100, path_txt)
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v2_re_incorrect_seed42_portion0.02.txt'
+        save_result_to_txt(model_name, dataset, "LFF v2 re", count_1/length*100, path_txt)
         
     print(f"Revision List: {len(revision_list)}, {revision_list}")

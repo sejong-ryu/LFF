@@ -29,34 +29,34 @@ def main(i, data, model, tokenizer=None, retriever=None, fail_memories=None, rev
     extractor = " Your final answer should be put between two ##, like ## 1 ## (if your final answer is 1), at the end of your response."
     question = question + " Explain your reasoning step-by-step." + extractor
     
-    QAs['Q'] = {'role': 'user', 'content': question}
+    QAs['Q1'] = {'role': 'user', 'content': question}
     messages = [{'role': 'user', 'content': question}]
     
-    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
+    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
-    QAs['A'] = {'role': 'assistant', 'content':response_1}
+    QAs['A1'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
+    
+    QAs['answer'] = answer
+    QAs['pred_ans1'] = get_answer_from_text(response_1)
     
     ### Extract embedding from question + zero-shot CoT prompt + extractor
     max_sim, error_pattern = retrieve_error_pattern(question, response_1, fail_memories, revision_memories, retriever, threshold=0.0)
     if error_pattern != "":
         revision_list.append(i+1)
         
-        question = data['question'] + f" You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
+        question = f" You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
         
         QAs['Q2'] = {'role': 'user', 'content': question}
-        new_messages = [{'role': 'user', 'content': question}]
+        messages.append({'role': 'user', 'content': question})
         
-        response_2 = chat_huggingface(new_messages, model, tokenizer, max_new_tokens=None)
+        response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
         
         QAs['A2'] = {'role': 'assistant', 'content':response_2}
         messages.append({'role': 'assistant', 'content':response_2})
         
-        QAs['answer'] = answer
-        QAs['pred_ans'] = get_answer_from_text(response_2)     
-    else:        
-        QAs['answer'] = answer
-        QAs['pred_ans'] = get_answer_from_text(response_1)
+        
+        QAs['pred_ans2'] = get_answer_from_text(response_2)             
 
     return max_sim, QAs 
 
@@ -116,7 +116,7 @@ if __name__=='__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_train.jsonl'
-    path_input = f'{input_dir}/{dataset}_test_remain.jsonl'
+    path_input = f'{input_dir}/{dataset}_test.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train_512.jsonl'
     path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test.jsonl'
     path_output_sim = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test_sim.jsonl'
@@ -143,8 +143,12 @@ if __name__=='__main__':
         data_est = read_data(path_output)
         length = len(data_est)
         count_1 = 0 # The accuracy of zero shot CoT prompt.
-        for i in range(length): 
-            if data_est[i]['answer']==data_est[i]['pred_ans']:
+        for i in range(length):
+            if 'pred_ans2' in data_est[i]:
+                pred = data_est[i]['pred_ans2']
+            else:
+                pred = data_est[i]['pred_ans1']
+            if data_est[i]['answer'] == pred:
                 count_1 += 1
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")

@@ -1,0 +1,24 @@
+{"index": 169, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 786, "type": "Omission Or Double-counting Error", "format": "Correctly computed ongoing quantities but neglected to include a necessary constant/fixed amount, so the final total was overstated or understated by that value."}
+{"index": 957, "type": "Unit Conversion Error", "format": "After finding unit‑rate a per unit time, multiplied rather than divided by required amount, inverting proportional reasoning."}
+{"index": 1084, "type": "Ratio Or Percentage Or Fraction Error", "format": "A required group omitted when adding categories, producing an undercount."}
+{"index": 1569, "type": "Geometry Or Dimension Error", "format": "Applied greatest‑common‑factor tiling logic instead of area‑to‑square‑root logic required for forming a single square."}
+{"index": 2126, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 2182, "type": "Sign Or Direction Error", "format": "A change in rate partway through an interval is ignored, so an entire sub‑interval is assigned the wrong rate."}
+{"index": 2638, "type": "Unit Conversion Error", "format": "After finding unit‑rate a per unit time, multiplied rather than divided by required amount, inverting proportional reasoning."}
+{"index": 3018, "type": "Counting Error", "format": "Mis‑handled boundary conditions, giving one extra or missing iteration/value."}
+{"index": 3103, "type": "Equation Or Variable Setup Error", "format": "Left variables unresolved or omitted given values, leading to undefined or arbitrary results."}
+{"index": 3612, "type": "Omission Or Double-counting Error", "format": "Correctly computed ongoing quantities but neglected to include a necessary constant/fixed amount, so the final total was overstated or understated by that value."}
+{"index": 4030, "type": "Sequence Or Order Error", "format": "Failed to update running totals correctly across steps, losing or duplicating amounts."}
+{"index": 4100, "type": "Remainder Or Segment Miscalculation", "format": "Removed or left in a final segment one time too many when partitioning a length, leaving the unknown remainder too large or too small."}
+{"index": 4180, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 4240, "type": "Sign Or Direction Error", "format": "A change in rate partway through an interval is ignored, so an entire sub‑interval is assigned the wrong rate."}
+{"index": 4582, "type": "Sign Or Direction Error", "format": "A change in rate partway through an interval is ignored, so an entire sub‑interval is assigned the wrong rate."}
+{"index": 4600, "type": "Rounding Or Precision Error", "format": "Computed correct value but presented it incorrectly or corrupted the answer field."}
+{"index": 4789, "type": "Counting Error", "format": "Mis‑handled boundary conditions, giving one extra or missing iteration/value."}
+{"index": 5591, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 5897, "type": "Equation Or Variable Setup Error", "format": "Left variables unresolved or omitted given values, leading to undefined or arbitrary results."}
+{"index": 6167, "type": "Aggregation Or Classification Error", "format": "Computed averages improperly, ignoring weights or mixing totals before dividing. Applied interest or growth formulas incorrectly (simple vs compound, wrong periods)."}
+{"index": 6175, "type": "Aggregation Or Classification Error", "format": "Computed averages improperly, ignoring weights or mixing totals before dividing. Applied interest or growth formulas incorrectly (simple vs compound, wrong periods)."}
+{"index": 6888, "type": "Problem Misinterpretation", "format": "Mis‑interpreted time spans or calendars when aggregating or scaling amounts."}
+{"index": 7182, "type": "Algebraic Manipulation Error", "format": "Mishandled algebraic rearrangements or equation solving, dropping terms or coefficients."}
