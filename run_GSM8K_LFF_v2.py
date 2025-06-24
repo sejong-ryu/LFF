@@ -116,7 +116,7 @@ if __name__=='__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_train.jsonl'
-    path_input = f'{input_dir}/{dataset}_test.jsonl'
+    path_input = f'{input_dir}/{dataset}_test_remain.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train_512.jsonl'
     path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test.jsonl'
     path_output_sim = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test_sim.jsonl'
