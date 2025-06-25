@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_sampled_indices_to_txt
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 
 openai.api_key = "XXX"
@@ -71,7 +71,7 @@ if __name__=='__main__':
     Dataset:
         GSM8K  
     """
-    flag = 3
+    flag = 2
     seed = 42
     set_seed(seed)
 
@@ -135,5 +135,5 @@ if __name__=='__main__':
         print(f"The accuracy of standard Prompt: {count_1/length*100}.")
         print(f"The accuracy of critical prompt: {count_2/length*100}.")
         
-        path_txt = f'{output_dir}/{dataset}_{model_name}_Critical_stage2_test_256_seed42_portion0.1.txt'
-        save_result_to_txt(model_name, dataset, "Critical stage2", count_1/length*100, count_2/length*100, path_txt)
+        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_256_seed42_portion0.1.txt'
+        save_result_to_txt2(model_name, dataset, "CriticalPrompt stage2", count_1/length*100, count_2/length*100, path_txt)
