@@ -26,6 +26,12 @@ def save_result_to_txt2(model, dataset, method, accuracy1, accuracy2, filename="
     with open(filename, "w") as f:
         f.write(content)
         
+        
+def save_result_to_txt3(model, dataset, method, accuracy1, accuracy2, accuracy3, filename="result.txt"):
+    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nIoE Accuracy: {accuracy2:.10f}\nFinal Accuracy: {accuracy3:.10f}\n"
+    with open(filename, "w") as f:
+        f.write(content)
+        
 
 def save_sampled_indices_to_txt(seed, length_sample_indices, sample_indices, filename="sampled_indices.txt"):
     indices_str = np.array2string(sample_indices, separator=', ', threshold=np.inf)

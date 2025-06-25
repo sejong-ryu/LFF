@@ -38,7 +38,7 @@ def main(i, data, model, tokenizer=None):
     QAs['Q2'] = {'role': 'user', 'content': question}
     messages.append({'role': 'user', 'content': question})
     
-    response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
+    response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
     QAs['A2'] = {'role': 'assistant', 'content':response_2}
     messages.append({'role': 'assistant', 'content':response_2})
@@ -123,5 +123,5 @@ if __name__=='__main__':
         print(f"The accuracy of standard Prompt: {count_1/length*100}.")
         print(f"The accuracy of critical prompt: {count_2/length*100}.")
         
-        path_txt = f'{output_dir}/{dataset}_{model_name}_Critical_stage1_test_256_seed42_portion0.1.txt'
-        save_result_to_txt2(model_name, dataset, "Critical stage1", count_1/length*100, count_2/length*100, path_txt)
+        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage1_test_256_seed42_portion0.1.txt'
+        save_result_to_txt(model_name, dataset, "CriticalPrompt stage1", count_1/length*100, count_2/length*100, path_txt)

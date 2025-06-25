@@ -6,10 +6,10 @@ import random
 import numpy as np 
 import os 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_sampled_indices_to_txt
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_result_to_txt3, save_sampled_indices_to_txt
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 
 openai.api_key = "XXX"
@@ -33,7 +33,7 @@ def main(i, data, model, tokenizer=None):
     QAs['A1'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
     
-    question = "Review your previous answer and find problems with your answer."
+    question = "Review your previous answer. If you are confident about your answer, maintain your answer. Otherwise, updaet your answer." + extractor
     
     QAs['Q2'] = {'role': 'user', 'content': question}
     messages.append({'role': 'user', 'content': question})
@@ -43,20 +43,28 @@ def main(i, data, model, tokenizer=None):
     QAs['A2'] = {'role': 'assistant', 'content':response_2}
     messages.append({'role': 'assistant', 'content':response_2})
     
-    question = "Based on the problems you found, improve your answer. Please reiterate your answer." + extractor
-    
-    QAs['Q3'] = {'role': 'user', 'content': question}
-    messages.append({'role': 'user', 'content': question})
-    
-    response_3 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
-    
-    QAs['A3'] = {'role': 'assistant', 'content':response_3}
-    messages.append({'role': 'assistant', 'content':response_3})
-
     QAs['answer'] = answer
     QAs['pred_ans1'] = get_answer_from_text(response_1)
     QAs['pred_ans2'] = get_answer_from_text(response_2)
-    QAs['pred_ans3'] = get_answer_from_text(response_3)
+    
+    if QAs['pred_ans1'] != QAs['pred_ans2']:
+        question = "You give two different answers in previous responses. Check the problem and your answers again, and giv the best answer." + extractor
+        
+        QAs['Q3'] = {'role': 'user', 'content': question}
+        messages.append({'role': 'user', 'content': question})
+        
+        response_3 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
+        
+        QAs['A3'] = {'role': 'assistant', 'content':response_3}
+        messages.append({'role': 'assistant', 'content':response_3})
+        
+        QAs['pred_ans3'] = get_answer_from_text(response_3)
+        QAs['final_ans'] = QAs['pred_ans3']
+    
+    if 'Q3' in QAs.keys():
+        QAs['final_ans'] = QAs['pred_ans3']
+    else:
+        QAs['final_ans'] = QAs['pred_ans2']    
 
     return QAs 
 
@@ -71,7 +79,7 @@ if __name__=='__main__':
     Dataset:
         GSM8K  
     """
-    flag = 2
+    flag = 3
     seed = 42
     set_seed(seed)
 
@@ -104,7 +112,7 @@ if __name__=='__main__':
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_test.jsonl'                       # Total test dataset
     path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'      # 10% sampled test dataset
-    path_output = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_256_seed42_portion0.1.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_IoE_stage2_test_256_seed42_portion0.1.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
@@ -124,16 +132,19 @@ if __name__=='__main__':
         data_est = read_data(path_output)
         length = len(data_est)
         count_1 = 0 # The accuracy of zero shot CoT (standard) prompt.
-        count_2 = 0 # the accuracy of Critical prompt.
-        count_3 = 0
+        count_2 = 0 # The accuracy of IoE prompt.
+        count_3 = 0 # The accuracy of Refinement.
         for i in range(length): 
             if data_est[i]['answer']==data_est[i]['pred_ans1']:
                 count_1 += 1
-            if data_est[i]['answer']==data_est[i]['pred_ans3']:
+            if data_est[i]['answer']==data_est[i]['pred_ans2']:
                 count_2 += 1
+            if data_est[i]['answer']==data_est[i]['final_ans']:
+                count_3 += 1
 
         print(f"The accuracy of standard Prompt: {count_1/length*100}.")
-        print(f"The accuracy of critical prompt: {count_2/length*100}.")
+        print(f"The accuracy of IoE prompt: {count_2/length*100}.")
+        print(f"The accuracy of Refinement (final): {count_3/length*100}.")
         
-        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_256_seed42_portion0.1.txt'
-        save_result_to_txt(model_name, dataset, "CriticalPrompt stage2", count_1/length*100, count_2/length*100, path_txt)
+        path_txt = f'{output_dir}/{dataset}_{model_name}_IoE_stage2_test_256_seed42_portion0.1.txt'
+        save_result_to_txt3(model_name, dataset, "IoE stage2", count_1/length*100, count_2/length*100, count_3/length*100, path_txt)

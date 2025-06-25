@@ -1,0 +1,5 @@
+Model: Llama-3-8B-Instruct
+Dataset: GSM8K
+Method: Critical stage1
+Stardard Accuracy: 72.5190839695
+Critical Accuracy: 18.3206106870
