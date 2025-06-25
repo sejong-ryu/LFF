@@ -10,7 +10,7 @@ from util.utils import set_seed, read_data, save_result, get_answer_from_text, c
 from util.memory_utils import retrieve_revision_advice, retrieve_error_pattern
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModel
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 
 openai.api_key = "xxx"
@@ -45,12 +45,12 @@ def main(i, data, model, tokenizer=None, retriever=None, fail_memories=None, rev
     if error_pattern != "":
         revision_list.append(i+1)
         
-        question = f" You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
+        question = f"You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem again and explain your reasoning step-by-step." + extractor
         
         QAs['Q2'] = {'role': 'user', 'content': question}
         messages.append({'role': 'user', 'content': question})
         
-        response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
+        response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
         
         QAs['A2'] = {'role': 'assistant', 'content':response_2}
         messages.append({'role': 'assistant', 'content':response_2})
@@ -118,8 +118,8 @@ if __name__=='__main__':
     #path_input = f'{input_dir}/{dataset}_train.jsonl'
     path_input = f'{input_dir}/{dataset}_test.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train_512.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test.jsonl'
-    path_output_sim = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test_sim.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test_512.jsonl'
+    path_output_sim = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test_512_sim.jsonl'
 
     if flag==1 or flag==3:
         fail_memories = torch.load(fail_memory_path, map_location=device).to(torch.bfloat16).to(device)
@@ -153,7 +153,7 @@ if __name__=='__main__':
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_train.txt'
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v2_test_512.txt'
         save_result_to_txt(model_name, dataset, "LFF v2", count_1/length*100, path_txt)
         
     print(f"Revision List: {len(revision_list)}, {revision_list}")

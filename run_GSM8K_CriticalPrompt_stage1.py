@@ -6,10 +6,10 @@ import random
 import numpy as np 
 import os 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_sampled_indices_to_txt
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_sampled_indices_to_txt
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 
 openai.api_key = "XXX"
@@ -19,22 +19,33 @@ HUGGINGFACE_TOKEN = "XXX"
 def main(i, data, model, tokenizer=None):
     QAs = dict()
     QAs['index'] = int(i)
-
+    
     question = data['question']
     answer = float(data['answer'])
     extractor = " Your final answer should be put between two ##, like ## 1 ## (if your final answer is 1), at the end of your response."
     question = question + " Explain your reasoning step-by-step." + extractor
     
-    QAs['Q'] = {'role': 'user', 'content': question}
+    QAs['Q1'] = {'role': 'user', 'content': question}
     messages=[{'role': 'user', 'content': question}]
     
     response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
-    
-    QAs['A'] = {'role': 'assistant', 'content':response_1}
+
+    QAs['A1'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
+    
+    question = "Review your previous answer and find problems with your answer. Based on the problems you found, improve your answer. Please reiterate your answer." + extractor
+    
+    QAs['Q2'] = {'role': 'user', 'content': question}
+    messages.append({'role': 'user', 'content': question})
+    
+    response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
+    
+    QAs['A2'] = {'role': 'assistant', 'content':response_2}
+    messages.append({'role': 'assistant', 'content':response_2})
 
     QAs['answer'] = answer
-    QAs['pred_ans'] = get_answer_from_text(response_1)
+    QAs['pred_ans1'] = get_answer_from_text(response_1)
+    QAs['pred_ans2'] = get_answer_from_text(response_2)
 
     return QAs 
 
@@ -80,17 +91,16 @@ if __name__=='__main__':
     output_dir = 'output/'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'
-    #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train_256_seed42_portion0.1.jsonl'
-    #path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test.jsonl'
+    #path_input = f'{input_dir}/{dataset}_test.jsonl'                       # Total test dataset
+    path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'      # 10% sampled test dataset
+    path_output = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage1_test_256_seed42_portion0.1.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
         
         #sample_k = int(np.floor(sample_portion * len(data)))
         #sample_indices = np.sort(np.random.choice(np.arange(len(data)), size=sample_k, replace=False))
-        #print(f"sample indices: {sample_indices}")
+        #print(f"sample indices: {len(sample_indices)}")
         #save_sampled_indices_to_txt(seed, len(sample_indices), sample_indices, filename=f"sampled_indices_{seed}_{sample_portion}.txt")
         sample_indices = list(np.arange(len(data)))    # use the whole dataset
              
@@ -102,12 +112,16 @@ if __name__=='__main__':
     if flag==2 or flag==3:
         data_est = read_data(path_output)
         length = len(data_est)
-        count_1 = 0 # The accuracy of zero shot CoT prompt.
+        count_1 = 0 # The accuracy of zero shot CoT (standard) prompt.
+        count_2 = 0 # the accuracy of Critical prompt.
         for i in range(length): 
-            if data_est[i]['answer']==data_est[i]['pred_ans']:
+            if data_est[i]['answer']==data_est[i]['pred_ans1']:
                 count_1 += 1
+            if data_est[i]['answer']==data_est[i]['pred_ans2']:
+                count_2 += 1
 
-        print(f"The accuracy of Zero-shot CoT Prompt: {count_1/length*100}.")
-        path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_train_256_seed42_portion0.1.txt'
-        #path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test.txt'
-        save_result_to_txt(model_name, dataset, "Zero-shot_CoT", count_1/length*100, path_txt)
+        print(f"The accuracy of standard Prompt: {count_1/length*100}.")
+        print(f"The accuracy of critical prompt: {count_2/length*100}.")
+        
+        path_txt = f'{output_dir}/{dataset}_{model_name}_Critical_stage1_test_256_seed42_portion0.1.txt'
+        save_result_to_txt(model_name, dataset, "Critical stage1", count_1/length*100, count_2/length*100, path_txt)

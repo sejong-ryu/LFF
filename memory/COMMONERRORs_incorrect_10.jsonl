@@ -1,0 +1,10 @@
+{"index": 169, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 786, "type": "Omission Or Double-counting Error", "format": "Correctly computed ongoing quantities but neglected to include a necessary constant/fixed amount, so the final total was overstated or understated by that value."}
+{"index": 957, "type": "Unit Conversion Error", "format": "After finding unit‑rate a per unit time, multiplied rather than divided by required amount, inverting proportional reasoning."}
+{"index": 1084, "type": "Ratio Or Percentage Or Fraction Error", "format": "A required group omitted when adding categories, producing an undercount."}
+{"index": 1569, "type": "Geometry Or Dimension Error", "format": "Applied greatest‑common‑factor tiling logic instead of area‑to‑square‑root logic required for forming a single square."}
+{"index": 2126, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 2182, "type": "Problem Misinterpretation", "format": "Mis‑interpreted time spans or calendars when aggregating or scaling amounts."}
+{"index": 2638, "type": "Unit Conversion Error", "format": "After finding unit‑rate a per unit time, multiplied rather than divided by required amount, inverting proportional reasoning."}
+{"index": 3018, "type": "Counting Error", "format": "Mis‑handled boundary conditions, giving one extra or missing iteration/value."}
+{"index": 3103, "type": "Equation Or Variable Setup Error", "format": "Left variables unresolved or omitted given values, leading to undefined or arbitrary results."}

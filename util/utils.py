@@ -21,6 +21,12 @@ def save_result_to_txt(model, dataset, method, accuracy, filename="result.txt"):
         f.write(content)
         
 
+def save_result_to_txt2(model, dataset, method, accuracy1, accuracy2, filename="result.txt"):
+    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nCritical Accuracy: {accuracy2:.10f}\n"
+    with open(filename, "w") as f:
+        f.write(content)
+        
+
 def save_sampled_indices_to_txt(seed, length_sample_indices, sample_indices, filename="sampled_indices.txt"):
     indices_str = np.array2string(sample_indices, separator=', ', threshold=np.inf)
     content = f"Seed: {seed}\nLength: {length_sample_indices}\nIndices: {indices_str}"
@@ -115,8 +121,10 @@ def contruct_conversation(messages):
     return conversation
     
     
-def chat_huggingface(messages, model, tokenizer, max_new_tokens=None):
+def chat_huggingface(messages, model, tokenizer, max_new_tokens=256):
     conversation = contruct_conversation(messages)
+    #print("-"*50)
+    #print(conversation)
 
     inputs = tokenizer(
         conversation,

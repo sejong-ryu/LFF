@@ -32,7 +32,7 @@ def main(i, data, model, tokenizer=None, revision_memories=None):
     QAs['Q1'] = {'role': 'user', 'content': question}
     messages = [{'role': 'user', 'content': question}]
     
-    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=None)
+    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
     QAs['A1'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
@@ -43,7 +43,7 @@ def main(i, data, model, tokenizer=None, revision_memories=None):
     ### Apply error warning without retrieval
     error_pattern = revision_memories
         
-    question = f" You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
+    question = f"You often make the \"{error_pattern['type']}\" mistake, for example, {error_pattern['format']} Keep this in mind as you solve the problem and explain your reasoning step-by-step." + extractor
         
     QAs['Q2'] = {'role': 'user', 'content': question}
     messages.append({'role': 'user', 'content': question})
@@ -73,7 +73,7 @@ if __name__=='__main__':
     flag = 3
 
     sample_portion = 1.0  # Set the portion of the dataset (use line 104, 105 and remove line 106)
-    revision_memory_path = "memory/COMMONERRORs_seed42_portion0.02.jsonl"
+    revision_memory_path = "memory/COMMONERRORs_incorrect_10.jsonl"
     dataset = 'GSM8K'
     model_name = "Llama-3-8B-Instruct"
     model_path = "meta-llama/Meta-Llama-3-8B-Instruct"
@@ -103,9 +103,9 @@ if __name__=='__main__':
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_train.jsonl'
     #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    path_input = f'failure/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_seed42_portion0.02.jsonl'
+    path_input = f'failure/GSM8K_Llama-3-8B-Instruct_zeroshot_CoT_train_512_incorrect_10.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_train_512.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v3_re_incorrect_seed42_portion0.02.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v3_train_512_incorrect_10.jsonl'
 
     if flag==1 or flag==3:
         revision_memories = read_data(revision_memory_path)
@@ -135,7 +135,7 @@ if __name__=='__main__':
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_train.txt'
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v3_re_incorrect_seed42_portion0.02.txt'
-        save_result_to_txt(model_name, dataset, "LFF v3 re", count_1/length*100, path_txt)
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v3_train_512_incorrect_10.txt'
+        save_result_to_txt(model_name, dataset, "LFF v3", count_1/length*100, path_txt)
         
     print(f"Revision List: {len(revision_list)}, {revision_list}")

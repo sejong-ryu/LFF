@@ -1,0 +1,10 @@
+{"index": 170, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 787, "type": "Arithmetic Miscalculation", "format": "3‑digit × 1‑digit multiplication carried incorrectly, adding an extra 60 to the product."}
+{"index": 958, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
+{"index": 1085, "type": "Omission Or Double-counting Error", "format": "Correctly computed ongoing quantities but neglected to include a necessary constant/fixed amount, so the final total was overstated or understated by that value."}
+{"index": 1571, "type": "Geometry Or Dimension Error", "format": "Applied greatest‑common‑factor tiling logic instead of area‑to‑square‑root logic required for forming a single square."}
+{"index": 2127, "type": "Rounding Or Precision Error", "format": "Computed correct value but presented it incorrectly or corrupted the answer field."}
+{"index": 2183, "type": "Omission Or Double-counting Error", "format": "Correctly computed ongoing quantities but neglected to include a necessary constant/fixed amount, so the final total was overstated or understated by that value."}
+{"index": 2639, "type": "Equation Or Variable Setup Error", "format": "Left variables unresolved or omitted given values, leading to undefined or arbitrary results."}
+{"index": 3019, "type": "Arithmetic Miscalculation", "format": "3‑digit × 1‑digit multiplication carried incorrectly, adding an extra 60 to the product."}
+{"index": 3104, "type": "Baseline Misreference", "format": "After converting to a per‑day figure, multiplied again by the same grouping factor when scaling up, causing an overestimate by that factor."}
