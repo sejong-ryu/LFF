@@ -22,7 +22,7 @@ def save_result_to_txt(model, dataset, method, accuracy, filename="result.txt"):
         
 
 def save_result_to_txt2(model, dataset, method, accuracy1, accuracy2, filename="result.txt"):
-    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nCritical Accuracy: {accuracy2:.10f}\n"
+    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\n{method} Accuracy: {accuracy2:.10f}\n"
     with open(filename, "w") as f:
         f.write(content)
         

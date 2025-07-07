@@ -18,6 +18,11 @@ HUGGINGFACE_TOKEN = "XXX"
 
 revision_list = []
 
+"""_summary_
+    - Question의 vector cos similarity를 기준으로 가장 유사한 revision memory를 찾아서, 해당 revision memory의 advice를 반환함.
+    - Advice는 단순한 형태: "Begin with a short outline of required operations, verifying each line with a sanity check before progressing. Ensure proportional reasoning keeps fractions and ratios consistent. Avoid verbose hedging expressions."
+    - Prompt 주는 방식: CoT prompt + " Here are some advice to solve the question: " + advice + extractor (self-correction 방식은 아님).
+"""
 
 def main(i, data, model, tokenizer=None, fail_memories=None, revision_memories=None):
     QAs = dict()

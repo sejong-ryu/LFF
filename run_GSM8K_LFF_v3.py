@@ -18,6 +18,11 @@ HUGGINGFACE_TOKEN = "xxx"
 
 revision_list = []
 
+"""_summary_
+    - Question + response의 vector cos similarity를 기준으로 가장 유사한 failure memory를 찾아서, 해당 failure memory의 type과 format을 반환.
+    - Advice는 \"extract_failure_latent\" 파일의 prompt로 GPT-o3에서 추출 (모든 failure case을 대상으로 GPT-o3를 통해 대표되는 failure type과 format을 추출).
+    - Prompt 주는 방식: CoT prompt + " You often make the " + failure type + " mistake, for example, " + failure format + " Keep this in mind as you solve the problem again and explain your reasoning step-by-step." + extractor
+"""
 
 def main(i, data, model, tokenizer=None, retriever=None, fail_memories=None, revision_memories=None):
     QAs = dict()

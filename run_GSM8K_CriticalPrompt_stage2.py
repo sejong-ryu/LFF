@@ -136,4 +136,4 @@ if __name__=='__main__':
         print(f"The accuracy of critical prompt: {count_2/length*100}.")
         
         path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_256_seed42_portion0.1.txt'
-        save_result_to_txt(model_name, dataset, "CriticalPrompt stage2", count_1/length*100, count_2/length*100, path_txt)
+        save_result_to_txt2(model_name, dataset, "CriticalPrompt stage2", count_1/length*100, count_2/length*100, path_txt)
