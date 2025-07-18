@@ -19,7 +19,7 @@ HUGGINGFACE_TOKEN = "xxx"
 
 revision_list = []
 
-def main(i, data, model, tokenizer=None, prm=None, threshold=0.6):
+def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold=0.6):
     QAs = dict()
     QAs['index'] = int(i)
 
@@ -49,7 +49,7 @@ def main(i, data, model, tokenizer=None, prm=None, threshold=0.6):
     prm_input_text = question + ' \n\n' + ' \n\n\n\n'.join(reasoning_steps) + ' \n\n\n\n'
     
     with torch.no_grad():
-        prm_input = torch.tensor([tokenizer.encode(prm_input_text)]).to(prm.device)
+        prm_input = torch.tensor([prm_tokenizer.encode(prm_input_text)]).to(prm.device)
         prm_logits = prm(prm_input).logits[:,:,candidate_tokens]
         #print(logits.shape)
         prm_scores = prm_logits.softmax(dim=-1)[:,:,1]
@@ -167,7 +167,7 @@ if __name__=='__main__':
         ### Load the prm
         candidate_tokens = [12, 10]
         prm_tokenizer = AutoTokenizer.from_pretrained(prm_path)
-        prm_tokenizer.pad_token = tokenizer.eos_token
+        prm_tokenizer.pad_token = prm_tokenizer.eos_token
         prm_tokenizer.padding_side = 'left' 
         prm_tokenizer.truncation_side = 'left'
     
@@ -195,7 +195,7 @@ if __name__=='__main__':
              
         print(f"data size: {len(sample_indices)}, output: {path_output}, OpenAI's key: {openai.api_key}, HuggingFace's token: {HUGGINGFACE_TOKEN}")
         for i in tqdm(sample_indices): 
-            messages = main(i, data[i], model, tokenizer, prm, threshold)
+            messages = main(i, data[i], model, tokenizer, prm, prm_tokenizer, threshold)
             save_result(messages, path_output)
             
     if flag==2 or flag==3:
