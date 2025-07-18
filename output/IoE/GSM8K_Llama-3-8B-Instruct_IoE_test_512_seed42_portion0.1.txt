@@ -1,0 +1,6 @@
+Model: Llama-3-8B-Instruct
+Dataset: GSM8K
+Method: IoE
+Stardard Accuracy: 80.1526717557
+Stage 1 Accuracy: 54.9618320611
+Stage 2 Accuracy: 68.7022900763

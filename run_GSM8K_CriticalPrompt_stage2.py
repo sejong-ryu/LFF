@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_sampled_indices_to_txt
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 
 openai.api_key = "XXX"
@@ -28,7 +28,7 @@ def main(i, data, model, tokenizer=None):
     QAs['Q1'] = {'role': 'user', 'content': question}
     messages=[{'role': 'user', 'content': question}]
     
-    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
+    response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
 
     QAs['A1'] = {'role': 'assistant', 'content':response_1}
     messages.append({'role': 'assistant', 'content':response_1})
@@ -38,7 +38,7 @@ def main(i, data, model, tokenizer=None):
     QAs['Q2'] = {'role': 'user', 'content': question}
     messages.append({'role': 'user', 'content': question})
     
-    response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
+    response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
     QAs['A2'] = {'role': 'assistant', 'content':response_2}
     messages.append({'role': 'assistant', 'content':response_2})
@@ -48,7 +48,7 @@ def main(i, data, model, tokenizer=None):
     QAs['Q3'] = {'role': 'user', 'content': question}
     messages.append({'role': 'user', 'content': question})
     
-    response_3 = chat_huggingface(messages, model, tokenizer, max_new_tokens=256)
+    response_3 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
     
     QAs['A3'] = {'role': 'assistant', 'content':response_3}
     messages.append({'role': 'assistant', 'content':response_3})
@@ -71,7 +71,7 @@ if __name__=='__main__':
     Dataset:
         GSM8K  
     """
-    flag = 2
+    flag = 3
     seed = 42
     set_seed(seed)
 
@@ -104,7 +104,7 @@ if __name__=='__main__':
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_test.jsonl'                       # Total test dataset
     path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'      # 10% sampled test dataset
-    path_output = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_256_seed42_portion0.1.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_512_seed42_portion0.1.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
@@ -135,5 +135,5 @@ if __name__=='__main__':
         print(f"The accuracy of standard Prompt: {count_1/length*100}.")
         print(f"The accuracy of critical prompt: {count_2/length*100}.")
         
-        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_256_seed42_portion0.1.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_512_seed42_portion0.1.txt'
         save_result_to_txt2(model_name, dataset, "CriticalPrompt stage2", count_1/length*100, count_2/length*100, path_txt)

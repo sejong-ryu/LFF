@@ -22,19 +22,13 @@ def save_result_to_txt(model, dataset, method, accuracy, filename="result.txt"):
         
 
 def save_result_to_txt2(model, dataset, method, accuracy1, accuracy2, filename="result.txt"):
-    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\n{method} Accuracy: {accuracy2:.10f}\n"
+    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nStage 1 Accuracy: {accuracy2:.10f}\n"
     with open(filename, "w") as f:
         f.write(content)
         
         
 def save_result_to_txt3(model, dataset, method, accuracy1, accuracy2, accuracy3, filename="result.txt"):
-    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nIoE Accuracy: {accuracy2:.10f}\nFinal Accuracy: {accuracy3:.10f}\n"
-    with open(filename, "w") as f:
-        f.write(content)
-        
-        
-def save_result_to_txt3(model, dataset, method, accuracy1, accuracy2, accuracy3, filename="result.txt"):
-    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nIoE Accuracy: {accuracy2:.10f}\nFinal Accuracy: {accuracy3:.10f}\n"
+    content = f"Model: {model}\nDataset: {dataset}\nMethod: {method}\nStardard Accuracy: {accuracy1:.10f}\nStage 1 Accuracy: {accuracy2:.10f}\nStage 2 Accuracy: {accuracy3:.10f}\n"
     with open(filename, "w") as f:
         f.write(content)
         
@@ -115,7 +109,7 @@ def get_answer_from_text(sentence):
     return ans
 
 
-def contruct_conversation(messages):
+def construct_conversation(messages):
     conversation = ""
     for m in messages:
         role = m.get("role", "").lower()
@@ -133,8 +127,8 @@ def contruct_conversation(messages):
     return conversation
     
     
-def chat_huggingface(messages, model, tokenizer, max_new_tokens=256):
-    conversation = contruct_conversation(messages)
+def chat_huggingface(messages, model, tokenizer, max_new_tokens=512):
+    conversation = construct_conversation(messages)
     #print("-"*50)
     #print(conversation)
 
@@ -156,3 +150,32 @@ def chat_huggingface(messages, model, tokenizer, max_new_tokens=256):
     input_len = inputs.input_ids.shape[-1]
     generated_text = tokenizer.decode(gen_ids[input_len:], skip_special_tokens=True).strip()
     return generated_text
+
+
+def chat_huggingface_with_hidden_states(messages, model, tokenizer, max_new_tokens=512):
+    conversation = construct_conversation(messages)
+    #print("-"*50)
+    #print(conversation)
+
+    inputs = tokenizer(
+        conversation,
+        return_tensors="pt",
+    ).to(model.device)
+
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
+            pad_token_id=tokenizer.eos_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+            return_dict_in_generate=True,
+            output_hidden_states=True
+        )
+
+    gen_ids = outputs.sequences[0]          # (seq_len,)
+    hidden_states = outputs.hidden_states   # tuple(Length = seq_length) of tuples(layer) of tensors
+    input_len = inputs.input_ids.shape[-1]
+    print(tokenizer.decode(gen_ids, skip_special_tokens=True).strip())
+    generated_text = tokenizer.decode(gen_ids[input_len:], skip_special_tokens=True).strip()
+    return generated_text, gen_ids[input_len:], hidden_states

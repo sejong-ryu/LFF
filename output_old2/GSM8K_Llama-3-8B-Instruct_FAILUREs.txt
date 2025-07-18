@@ -1,0 +1,5 @@
+Model: Llama-3-8B-Instruct
+Dataset: GSM8K
+Method: test-method
+Stardard Accuracy: 0.0000000000
+Stage 1 Accuracy: 45.0000000000
