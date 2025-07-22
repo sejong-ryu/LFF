@@ -6,10 +6,10 @@ import random
 import numpy as np 
 import os 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_sampled_indices_to_txt
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_sampled_indices_to_txt, get_answer_response_from_text
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 
 openai.api_key = "XXX"
@@ -29,9 +29,10 @@ def main(i, data, model, tokenizer=None):
     messages=[{'role': 'user', 'content': question}]
     
     response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+    pred_ans1, cut_response_1 = get_answer_response_from_text(response_1)
 
-    QAs['A1'] = {'role': 'assistant', 'content':response_1}
-    messages.append({'role': 'assistant', 'content':response_1})
+    QAs['A1'] = {'role': 'assistant', 'content':cut_response_1}
+    messages.append({'role': 'assistant', 'content':cut_response_1})
     
     question = "Review your previous answer and find problems with your answer."
     
@@ -39,9 +40,10 @@ def main(i, data, model, tokenizer=None):
     messages.append({'role': 'user', 'content': question})
     
     response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+    pred_ans2, cut_response_2 = get_answer_response_from_text(response_2)
     
-    QAs['A2'] = {'role': 'assistant', 'content':response_2}
-    messages.append({'role': 'assistant', 'content':response_2})
+    QAs['A2'] = {'role': 'assistant', 'content':cut_response_2}
+    messages.append({'role': 'assistant', 'content':cut_response_2})
     
     question = "Based on the problems you found, improve your answer. Please reiterate your answer." + extractor
     
@@ -49,14 +51,15 @@ def main(i, data, model, tokenizer=None):
     messages.append({'role': 'user', 'content': question})
     
     response_3 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+    pred_ans3, cut_response_3 = get_answer_response_from_text(response_3)
     
-    QAs['A3'] = {'role': 'assistant', 'content':response_3}
-    messages.append({'role': 'assistant', 'content':response_3})
+    QAs['A3'] = {'role': 'assistant', 'content':cut_response_3}
+    messages.append({'role': 'assistant', 'content':cut_response_3})
 
     QAs['answer'] = answer
-    QAs['pred_ans1'] = get_answer_from_text(response_1)
-    QAs['pred_ans2'] = get_answer_from_text(response_2)
-    QAs['pred_ans3'] = get_answer_from_text(response_3)
+    QAs['pred_ans1'] = pred_ans1
+    QAs['pred_ans2'] = pred_ans2
+    QAs['pred_ans3'] = pred_ans3
 
     return QAs 
 
@@ -104,7 +107,7 @@ if __name__=='__main__':
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_test.jsonl'                       # Total test dataset
     path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'      # 10% sampled test dataset
-    path_output = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_512_seed42_portion0.1.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_512_cut_seed42_portion0.1.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
@@ -135,5 +138,5 @@ if __name__=='__main__':
         print(f"The accuracy of standard Prompt: {count_1/length*100}.")
         print(f"The accuracy of critical prompt: {count_2/length*100}.")
         
-        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_512_seed42_portion0.1.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_CriticalPrompt_stage2_test_512_cut_seed42_portion0.1.txt'
         save_result_to_txt2(model_name, dataset, "CriticalPrompt stage2", count_1/length*100, count_2/length*100, path_txt)

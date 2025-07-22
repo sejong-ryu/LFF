@@ -5,9 +5,9 @@ import re
 import random
 import numpy as np 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "6,7" 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, get_answer_response_from_text
 from util.memory_utils import retrieve_revision_advice, retrieve_error_pattern, retrieve_error_pattern2
 from util.prm_utils import find_smaller_than_T
 import torch
@@ -34,12 +34,10 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
     messages = [{'role': 'user', 'content': question}]
     
     response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+    pred_ans1, cut_response_1 = get_answer_response_from_text(response_1)
     
-    QAs['A1'] = {'role': 'assistant', 'content':response_1}
-    messages.append({'role': 'assistant', 'content':response_1})
-    
-    QAs['answer'] = answer
-    QAs['pred_ans1'] = get_answer_from_text(response_1)
+    QAs['A1'] = {'role': 'assistant', 'content':cut_response_1}
+    messages.append({'role': 'assistant', 'content':cut_response_1})
     
     ### PRM
     question = QAs['Q1']['content'].strip()
@@ -74,9 +72,9 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
         """
         
         # LFF_v9_6
-        """
+        
         question = f"Review your previous answer. Solve the problem again in a totally different way. Ensure that each step directly uses only the numbers and conditions from the current problem, matching them one-to-one. Count the conditions and numbers in the problem, and count them again in your reasoning to ensure nothing is missing or added. Always track what each number represents, avoid double-counting or unnecessary calculations, and confirm that your final answer directly answers what the problem asks." + extractor
-        """
+        
         # LFF_v9_7
         """
         question = f"Review your previous answer. Solve the problem again in a totally different way." + extractor
@@ -105,21 +103,29 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
         """
         
         # LFF_v9_11
-        
+        """
         step_examples = ", ".join([f"\"{step}\"" for step in mistake_steps])
         question = "Review your previous answer, especially " + step_examples + " Solve the problem again in a different way." + extractor
+        """
         
-        
+        # ----------------------------------------------------------------------------------------------------------------------------------
         QAs['Q2'] = {'role': 'user', 'content': question}
         messages.append({'role': 'user', 'content': question})
         
         response_2 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+        pred_ans2, cut_response_2 = get_answer_response_from_text(response_2)
         
-        QAs['A2'] = {'role': 'assistant', 'content':response_2}
-        messages.append({'role': 'assistant', 'content':response_2})
+        QAs['A2'] = {'role': 'assistant', 'content':cut_response_2}
+        messages.append({'role': 'assistant', 'content':cut_response_2})
         
-        QAs['pred_ans2'] = get_answer_from_text(response_2)  
-
+        QAs['answer'] = answer
+        QAs['pred_ans1'] = pred_ans1
+        QAs['pred_ans2'] = pred_ans2
+    
+    else:
+        QAs['answer'] = answer
+        QAs['pred_ans1'] = pred_ans1
+    
     return QAs 
 
 
@@ -182,11 +188,11 @@ if __name__=='__main__':
     output_dir = '/drive2/ryusejong/LFF/output'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    #path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'
-    path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'
+    path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'
+    #path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'
     #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_train_512_seed42_portion0.1.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_11_test_512_seed42_portion0.1.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_train_512_cut_seed42_portion0.1.jsonl'
+    #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_test_512_cut_seed42_portion0.1.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_test_512.jsonl'
 
     if flag==1 or flag==3:
@@ -211,8 +217,8 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
-        #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_train_512_seed42_portion0.1.txt'
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_11_test_512_seed42_portion0.1.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_train_512_cut_seed42_portion0.1.txt'
+        #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_test_512_cut_seed42_portion0.1.txt'
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_test_512.txt'
         save_result_to_txt(model_name, dataset, "LFF v9", count_1/length*100, path_txt)
         

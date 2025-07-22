@@ -92,9 +92,8 @@ def normalize_answer(ans):
 
 
 def get_answer_from_text(sentence):
-    sentence = sentence.replace(',', '')     # To remove the punctuation in number, e.g., $2,000
+    #sentence = sentence.replace(',', '')     # To remove the punctuation in number, e.g., $2,000
     pattern = re.compile(r'##(.*?)##')
-    #pattern = re.compile(r'#{2,}\s*(.*?)\s*#{2,}', re.DOTALL)
 
     ans = re.findall(pattern, sentence)
     if len(ans):
@@ -107,6 +106,25 @@ def get_answer_from_text(sentence):
     else:
         ans = float(10086100100)
     return ans
+
+
+def get_answer_response_from_text(sentence):
+    #sentence = sentence.replace(',', '')     # To remove the punctuation in number, e.g., $2,000
+    pattern = re.compile(r'##(.*?)##')
+
+    ans = re.findall(pattern, sentence)
+    if len(ans):
+        ans = ans[-1]
+        ans = normalize_answer(ans)
+        try:
+            ans = float(ans)
+        except:
+            ans = float(10086100100)
+        cut_sentence = sentence[:re.search(pattern, sentence).end()].rstrip()
+    else:
+        ans = float(10086100100)
+        cut_sentence = sentence
+    return ans, cut_sentence
 
 
 def construct_conversation(messages):

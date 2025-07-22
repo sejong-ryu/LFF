@@ -6,10 +6,10 @@ import random
 import numpy as np 
 import os 
 from tqdm.auto import tqdm
-from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_sampled_indices_to_txt
+from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_sampled_indices_to_txt, get_answer_response_from_text
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 
 openai.api_key = "XXX"
@@ -29,12 +29,13 @@ def main(i, data, model, tokenizer=None):
     messages=[{'role': 'user', 'content': question}]
     
     response_1 = chat_huggingface(messages, model, tokenizer, max_new_tokens=512)
+    pred_ans, cut_response_1= get_answer_response_from_text(response_1)
     
-    QAs['A'] = {'role': 'assistant', 'content':response_1}
-    messages.append({'role': 'assistant', 'content':response_1})
-
+    QAs['A'] = {'role': 'assistant', 'content':cut_response_1}
+    messages.append({'role': 'assistant', 'content':cut_response_1})
+    
     QAs['answer'] = answer
-    QAs['pred_ans'] = get_answer_from_text(response_1)
+    QAs['pred_ans'] = pred_ans
 
     return QAs 
 
@@ -82,7 +83,7 @@ if __name__=='__main__':
         os.makedirs(output_dir)
     path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'
     #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test_512_seed42_portion0.1.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test_512_cut_seed42_portion0.1.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test.jsonl'
 
     if flag==1 or flag==3:
@@ -108,5 +109,5 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of Zero-shot CoT Prompt: {count_1/length*100}.")
-        path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test_512_seed42_portion0.1.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_zeroshot_CoT_test_512_cut_seed42_portion0.1.txt'
         save_result_to_txt(model_name, dataset, "Zero-shot_CoT", count_1/length*100, path_txt)
