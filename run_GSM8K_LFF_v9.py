@@ -5,7 +5,7 @@ import re
 import random
 import numpy as np 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "6,7" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "4,5" 
 from tqdm.auto import tqdm
 from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, get_answer_response_from_text
 from util.memory_utils import retrieve_revision_advice, retrieve_error_pattern, retrieve_error_pattern2
@@ -72,9 +72,9 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
         """
         
         # LFF_v9_6
-        
+        """
         question = f"Review your previous answer. Solve the problem again in a totally different way. Ensure that each step directly uses only the numbers and conditions from the current problem, matching them one-to-one. Count the conditions and numbers in the problem, and count them again in your reasoning to ensure nothing is missing or added. Always track what each number represents, avoid double-counting or unnecessary calculations, and confirm that your final answer directly answers what the problem asks." + extractor
-        
+        """
         # LFF_v9_7
         """
         question = f"Review your previous answer. Solve the problem again in a totally different way." + extractor
@@ -91,10 +91,10 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
         """
         
         # LFF_v9_9
-        """
+        
         step_examples = ", ".join([f"\"{step}\"" for step in mistake_steps])
         question = f"Review your previous answer, especially " + step_examples + " Solve the problem again in a totally different way. Ensure that each step directly uses only the numbers and conditions from the current problem, matching them one-to-one. Count the conditions and numbers in the problem, and count them again in your reasoning to ensure nothing is missing or added. Always track what each number represents, avoid double-counting or unnecessary calculations, and confirm that your final answer directly answers what the problem asks." + extractor
-        """
+        
         
         # LFF_v9_10
         """
@@ -188,12 +188,12 @@ if __name__=='__main__':
     output_dir = '/drive2/ryusejong/LFF/output'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'
+    #path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'
     #path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'
-    #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_train_512_cut_seed42_portion0.1.jsonl'
+    path_input = f'{input_dir}/{dataset}_test.jsonl'
+    #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_train_512_cut_seed42_portion0.1.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_test_512_cut_seed42_portion0.1.jsonl'
-    #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_test_512.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_test_512_cut.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
@@ -217,9 +217,9 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_train_512_cut_seed42_portion0.1.txt'
+        #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_train_512_cut_seed42_portion0.1.txt'
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_test_512_cut_seed42_portion0.1.txt'
-        #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_6_test_512.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v9_9_test_512_cut.txt'
         save_result_to_txt(model_name, dataset, "LFF v9", count_1/length*100, path_txt)
         
     print(f"Revision List: {len(revision_list)}, {revision_list}")

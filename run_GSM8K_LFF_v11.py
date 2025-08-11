@@ -69,13 +69,13 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
     #cut_reasoning_steps = [l.strip() for l in cut_reasoning.split("\n") if l.strip()]
     #general_input_text = question + ' \n\n' + ' \n\n\n\n'.join(cut_reasoning_steps) + ' \n\n\n\n'
     
-    ### LFF_v11_7
+    ### LFF_v11_7, LFF_v11_8
     general_reasoning_steps = []
     for i, step in enumerate(reasoning_steps):
         if i == 0:
             general_reasoning_steps.append("Based on problem, next step is: " + step)
         else:
-            general_reasoning_steps.append(" Based on problem and/or previous reasoning, next step is: " + step)
+            general_reasoning_steps.append(" Based on problem and previous reasoning, next step is: " + step)
     general_input_text = question + ' \n\n' + ' \n\n\n\n'.join(general_reasoning_steps) + ' \n\n\n\n'
     
     with torch.no_grad():
@@ -106,17 +106,12 @@ def main(i, data, model, tokenizer=None, prm=None, prm_tokenizer=None, threshold
         
     general_step_probs = []
     for i, step in enumerate(reasoning_steps):
-        ### LFF_v11_4
+        ### LFF_v11_4, LFF_v11_6
         #if i == 0:
         #    general_input_text = question + ' \n\n' + "Based on problem, next step is: " + step + ' \n\n\n\n'
         #else:
         #    general_input_text = question + ' \n\n' + ' \n\n\n\n'.join(reasoning_steps[:i]) + ' \n\n\n\n' + " Based on problem and previous reasoning, next step is: " + step + ' \n\n\n\n'
             
-        ### LFF_v11_6
-        if i == 0:
-            general_input_text = question + ' \n\n' + "Based on problem, next step is: " + step + ' \n\n\n\n'
-        else:
-            general_input_text = question + ' \n\n' + ' \n\n\n\n'.join(reasoning_steps[:i]) + ' \n\n\n\n' + " Based on problem and/or previous reasoning, next step is: " + step + ' \n\n\n\n'
         with torch.no_grad():
             general_input = torch.tensor([prm_tokenizer.encode(general_input_text)]).to(prm.device)
             general_logits = prm(general_input).logits[:,:,candidate_tokens]
@@ -203,7 +198,7 @@ if __name__=='__main__':
     path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'
     #path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'
     #path_input = f'{input_dir}/{dataset}_test.jsonl'
-    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v11_7_train_512_cut_seed42_portion0.1.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v11_8_train_512_cut_seed42_portion0.1.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v11_1_test_512_seed42_portion0.1.jsonl'
     #path_output = f'{output_dir}/{dataset}_{model_name}_LFF_v10_6_test_512.jsonl'
 
@@ -225,7 +220,7 @@ if __name__=='__main__':
                 count_1 += 1
 
         print(f"The accuracy of LFF Prompt: {count_1/length*100}.")
-        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v11_7_train_512_cut_seed42_portion0.1.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v11_8_train_512_cut_seed42_portion0.1.txt'
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v11_1_test_512_seed42_portion0.1.txt'
         #path_txt = f'{output_dir}/{dataset}_{model_name}_LFF_v10_6_test_512.txt'
         save_result_to_txt(model_name, dataset, "LFF v11", count_1/length*100, path_txt)

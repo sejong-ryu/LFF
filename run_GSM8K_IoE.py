@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 from util.utils import set_seed, read_data, save_result, get_answer_from_text, chat_huggingface, save_result_to_txt, save_result_to_txt2, save_result_to_txt3, save_sampled_indices_to_txt, get_answer_response_from_text
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 
 openai.api_key = "XXX"
@@ -114,8 +114,9 @@ if __name__=='__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     #path_input = f'{input_dir}/{dataset}_test.jsonl'                       # Total test dataset
-    path_input = f'{input_dir}/{dataset}_test_seed42_portion0.1.jsonl'      # 10% sampled test dataset
-    path_output = f'{output_dir}/{dataset}_{model_name}_IoE_test_512_cut_seed42_portion0.1.jsonl'
+    path_input = f'{input_dir}/{dataset}_train_seed42_portion0.1.jsonl'      # 10% sampled test dataset
+    #path_output = f'{output_dir}/{dataset}_{model_name}_IoE_test_512_cut.jsonl'
+    path_output = f'{output_dir}/{dataset}_{model_name}_IoE_train_512_cut_seed42_portion0.1.jsonl'
 
     if flag==1 or flag==3:
         data = read_data(path_input)
@@ -149,5 +150,6 @@ if __name__=='__main__':
         print(f"The accuracy of IoE prompt: {count_2/length*100}.")
         print(f"The accuracy of Refinement (final): {count_3/length*100}.")
         
-        path_txt = f'{output_dir}/{dataset}_{model_name}_IoE_test_512_cut_seed42_portion0.1.txt'
+        #path_txt = f'{output_dir}/{dataset}_{model_name}_IoE_test_512_cut.txt'
+        path_txt = f'{output_dir}/{dataset}_{model_name}_IoE_train_512_cut_seed42_portion0.1.txt'
         save_result_to_txt3(model_name, dataset, "IoE", count_1/length*100, count_2/length*100, count_3/length*100, path_txt)
